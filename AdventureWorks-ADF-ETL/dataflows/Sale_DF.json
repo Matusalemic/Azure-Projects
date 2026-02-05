@@ -1,0 +1,169 @@
+{
+    "name": "Sale_DF",
+    "properties": {
+        "type": "MappingDataFlow",
+        "typeProperties": {
+            "sources": [
+                {
+                    "dataset": {
+                        "referenceName": "Source_Table",
+                        "type": "DatasetReference"
+                    },
+                    "name": "SourceTable"
+                },
+                {
+                    "dataset": {
+                        "referenceName": "Person",
+                        "type": "DatasetReference"
+                    },
+                    "name": "Person"
+                }
+            ],
+            "sinks": [
+                {
+                    "dataset": {
+                        "referenceName": "Sale",
+                        "type": "DatasetReference"
+                    },
+                    "name": "Sale"
+                }
+            ],
+            "transformations": [
+                {
+                    "name": "SelectSale"
+                },
+                {
+                    "name": "JoinIDsCustomer"
+                },
+                {
+                    "name": "JoinIDsSalesPerson"
+                },
+                {
+                    "name": "SelectCustomerID"
+                },
+                {
+                    "name": "FinalSelect"
+                },
+                {
+                    "name": "aggregate1"
+                }
+            ],
+            "scriptLines": [
+                "source(output(",
+                "          SalesOrderID as string,",
+                "          OrderDate as string,",
+                "          ShipDate as string,",
+                "          OrderStatus as string,",
+                "          OrderTotalDue as string,",
+                "          ProductName as string,",
+                "          ProductColor as string,",
+                "          ProductSize as string,",
+                "          ProductStandardCost as string,",
+                "          ProductClass as string,",
+                "          OrderQuatity as string,",
+                "          ProductUnitPrice as string,",
+                "          CustomerTitle as string,",
+                "          CustomerFirstName as string,",
+                "          CustomerLastName as string,",
+                "          CustomerAddress as string,",
+                "          CustomerAccountNumber as string,",
+                "          SalesPersonTitle as string,",
+                "          SalesPersonFirstName as string,",
+                "          SalesPersonLastName as string,",
+                "          SalesPersonHourlyRate as string,",
+                "          SalesPersonBonus as string",
+                "     ),",
+                "     allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     ignoreNoFilesFound: false) ~> SourceTable",
+                "source(output(",
+                "          PersonID as integer,",
+                "          Title as string,",
+                "          FirstName as string,",
+                "          LastName as string",
+                "     ),",
+                "     allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     isolationLevel: 'READ_UNCOMMITTED',",
+                "     format: 'table') ~> Person",
+                "SourceTable select(mapColumn(",
+                "          SalesOrderID,",
+                "          OrderDate,",
+                "          ShipDate,",
+                "          OrderStatus,",
+                "          OrderTotalDue,",
+                "          CustomerFirstName,",
+                "          CustomerLastName,",
+                "          SalesPersonFirstName,",
+                "          SalesPersonLastName",
+                "     ),",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true) ~> SelectSale",
+                "SelectSale, Person join(CustomerFirstName == FirstName",
+                "     && CustomerLastName == LastName,",
+                "     joinType:'inner',",
+                "     matchType:'exact',",
+                "     ignoreSpaces: false,",
+                "     broadcast: 'auto')~> JoinIDsCustomer",
+                "SelectCustomerID, Person join(SalesPersonFirstName == Person@FirstName",
+                "     && SalesPersonLastName == Person@LastName,",
+                "     joinType:'inner',",
+                "     matchType:'exact',",
+                "     ignoreSpaces: false,",
+                "     broadcast: 'auto')~> JoinIDsSalesPerson",
+                "JoinIDsCustomer select(mapColumn(",
+                "          SalesOrderID,",
+                "          OrderDate,",
+                "          ShipDate,",
+                "          OrderStatus,",
+                "          OrderTotalDue,",
+                "          SalesPersonFirstName,",
+                "          SalesPersonLastName,",
+                "          CustomerID = PersonID,",
+                "          FirstName,",
+                "          LastName",
+                "     ),",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true) ~> SelectCustomerID",
+                "JoinIDsSalesPerson select(mapColumn(",
+                "          SalesOrderID,",
+                "          OrderDate,",
+                "          ShipDate,",
+                "          OrderStatus,",
+                "          OrderTotalDue,",
+                "          CustomerID,",
+                "          SalesPersonID = PersonID",
+                "     ),",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true) ~> FinalSelect",
+                "FinalSelect aggregate(groupBy(SalesOrderID,",
+                "          OrderDate,",
+                "          ShipDate,",
+                "          OrderStatus,",
+                "          OrderTotalDue,",
+                "          CustomerID,",
+                "          SalesPersonID),",
+                "     dummy = count(1)) ~> aggregate1",
+                "aggregate1 sink(allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     input(",
+                "          SalesOrderID as string,",
+                "          OrderDate as timestamp,",
+                "          ShipDate as timestamp,",
+                "          OrderStatus as integer,",
+                "          OrderTotalDue as decimal(10,4),",
+                "          CustomerID as integer,",
+                "          SalesPersonID as integer",
+                "     ),",
+                "     deletable:false,",
+                "     insertable:true,",
+                "     updateable:false,",
+                "     upsertable:false,",
+                "     format: 'table',",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true,",
+                "     errorHandlingOption: 'stopOnFirstError') ~> Sale"
+            ]
+        }
+    }
+}

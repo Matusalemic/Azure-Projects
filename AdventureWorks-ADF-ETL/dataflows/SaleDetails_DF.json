@@ -1,0 +1,98 @@
+{
+    "name": "SaleDetails_DF",
+    "properties": {
+        "type": "MappingDataFlow",
+        "typeProperties": {
+            "sources": [
+                {
+                    "dataset": {
+                        "referenceName": "Source_Table",
+                        "type": "DatasetReference"
+                    },
+                    "name": "SourceTable"
+                }
+            ],
+            "sinks": [
+                {
+                    "dataset": {
+                        "referenceName": "SaleDetails",
+                        "type": "DatasetReference"
+                    },
+                    "name": "SaleDetails"
+                }
+            ],
+            "transformations": [
+                {
+                    "name": "SelectSaleDetails"
+                },
+                {
+                    "name": "aggregate1"
+                }
+            ],
+            "scriptLines": [
+                "source(output(",
+                "          SalesOrderID as string,",
+                "          OrderDate as string,",
+                "          ShipDate as string,",
+                "          OrderStatus as string,",
+                "          OrderTotalDue as string,",
+                "          ProductName as string,",
+                "          ProductColor as string,",
+                "          ProductSize as string,",
+                "          ProductStandardCost as string,",
+                "          ProductClass as string,",
+                "          OrderQuatity as string,",
+                "          ProductUnitPrice as string,",
+                "          CustomerTitle as string,",
+                "          CustomerFirstName as string,",
+                "          CustomerLastName as string,",
+                "          CustomerAddress as string,",
+                "          CustomerAccountNumber as string,",
+                "          SalesPersonTitle as string,",
+                "          SalesPersonFirstName as string,",
+                "          SalesPersonLastName as string,",
+                "          SalesPersonHourlyRate as string,",
+                "          SalesPersonBonus as string",
+                "     ),",
+                "     allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     ignoreNoFilesFound: false) ~> SourceTable",
+                "SourceTable select(mapColumn(",
+                "          SalesOrderID,",
+                "          ProductName,",
+                "          OrderQuatity,",
+                "          ProductUnitPrice",
+                "     ),",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true) ~> SelectSaleDetails",
+                "SelectSaleDetails aggregate(groupBy(SalesOrderID,",
+                "          ProductName,",
+                "          OrderQuatity,",
+                "          ProductUnitPrice),",
+                "     dummy = count(1)) ~> aggregate1",
+                "aggregate1 sink(allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     input(",
+                "          SalesOrderID as string,",
+                "          ProductName as string,",
+                "          OrderQuantity as integer,",
+                "          ProductUnitPrice as decimal(10,4)",
+                "     ),",
+                "     deletable:false,",
+                "     insertable:true,",
+                "     updateable:false,",
+                "     upsertable:false,",
+                "     format: 'table',",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true,",
+                "     errorHandlingOption: 'stopOnFirstError',",
+                "     mapColumn(",
+                "          SalesOrderID,",
+                "          ProductName,",
+                "          OrderQuantity = OrderQuatity,",
+                "          ProductUnitPrice",
+                "     )) ~> SaleDetails"
+            ]
+        }
+    }
+}

@@ -1,0 +1,102 @@
+{
+    "name": "ProductTable_DF",
+    "properties": {
+        "type": "MappingDataFlow",
+        "typeProperties": {
+            "sources": [
+                {
+                    "dataset": {
+                        "referenceName": "Source_Table",
+                        "type": "DatasetReference"
+                    },
+                    "name": "SourceTable"
+                }
+            ],
+            "sinks": [
+                {
+                    "dataset": {
+                        "referenceName": "Product",
+                        "type": "DatasetReference"
+                    },
+                    "name": "Product"
+                }
+            ],
+            "transformations": [
+                {
+                    "name": "SelectProductColumns"
+                },
+                {
+                    "name": "aggregate1"
+                }
+            ],
+            "scriptLines": [
+                "source(output(",
+                "          SalesOrderID as string,",
+                "          OrderDate as string,",
+                "          ShipDate as string,",
+                "          OrderStatus as string,",
+                "          OrderTotalDue as string,",
+                "          ProductName as string,",
+                "          ProductColor as string,",
+                "          ProductSize as string,",
+                "          ProductStandardCost as string,",
+                "          ProductClass as string,",
+                "          OrderQuatity as string,",
+                "          ProductUnitPrice as string,",
+                "          CustomerTitle as string,",
+                "          CustomerFirstName as string,",
+                "          CustomerLastName as string,",
+                "          CustomerAddress as string,",
+                "          CustomerAccountNumber as string,",
+                "          SalesPersonTitle as string,",
+                "          SalesPersonFirstName as string,",
+                "          SalesPersonLastName as string,",
+                "          SalesPersonHourlyRate as string,",
+                "          SalesPersonBonus as string",
+                "     ),",
+                "     allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     ignoreNoFilesFound: false) ~> SourceTable",
+                "SourceTable select(mapColumn(",
+                "          ProductName,",
+                "          ProductColor,",
+                "          ProductSize,",
+                "          ProductClass,",
+                "          ProductStandardCost",
+                "     ),",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true) ~> SelectProductColumns",
+                "SelectProductColumns aggregate(groupBy(ProductName,",
+                "          ProductColor,",
+                "          ProductSize,",
+                "          ProductClass,",
+                "          ProductStandardCost),",
+                "     dummy = count(1)) ~> aggregate1",
+                "aggregate1 sink(allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     input(",
+                "          ProductName as string,",
+                "          ProductColor as string,",
+                "          ProductSize as string,",
+                "          ProductClass as string,",
+                "          ProductStandardCost as decimal(10,4)",
+                "     ),",
+                "     deletable:false,",
+                "     insertable:true,",
+                "     updateable:false,",
+                "     upsertable:false,",
+                "     format: 'table',",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true,",
+                "     errorHandlingOption: 'stopOnFirstError',",
+                "     mapColumn(",
+                "          ProductName,",
+                "          ProductColor,",
+                "          ProductSize,",
+                "          ProductClass,",
+                "          ProductStandardCost",
+                "     )) ~> Product"
+            ]
+        }
+    }
+}

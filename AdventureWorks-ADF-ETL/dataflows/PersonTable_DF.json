@@ -1,0 +1,109 @@
+{
+    "name": "PersonTable_DF",
+    "properties": {
+        "description": "Using this DF to split the Source_Table",
+        "type": "MappingDataFlow",
+        "typeProperties": {
+            "sources": [
+                {
+                    "dataset": {
+                        "referenceName": "Source_Table",
+                        "type": "DatasetReference"
+                    },
+                    "name": "SplitSourceTable"
+                }
+            ],
+            "sinks": [
+                {
+                    "dataset": {
+                        "referenceName": "Person",
+                        "type": "DatasetReference"
+                    },
+                    "name": "Person"
+                }
+            ],
+            "transformations": [
+                {
+                    "name": "CustomerSelect"
+                },
+                {
+                    "name": "SalesPersonSelect"
+                },
+                {
+                    "name": "UnionIntoPerson"
+                },
+                {
+                    "name": "AggregatePerson"
+                }
+            ],
+            "scriptLines": [
+                "source(output(",
+                "          SalesOrderID as string,",
+                "          OrderDate as string,",
+                "          ShipDate as string,",
+                "          OrderStatus as string,",
+                "          OrderTotalDue as string,",
+                "          ProductName as string,",
+                "          ProductColor as string,",
+                "          ProductSize as string,",
+                "          ProductStandardCost as string,",
+                "          ProductClass as string,",
+                "          OrderQuatity as string,",
+                "          ProductUnitPrice as string,",
+                "          CustomerTitle as string,",
+                "          CustomerFirstName as string,",
+                "          CustomerLastName as string,",
+                "          CustomerAddress as string,",
+                "          CustomerAccountNumber as string,",
+                "          SalesPersonTitle as string,",
+                "          SalesPersonFirstName as string,",
+                "          SalesPersonLastName as string,",
+                "          SalesPersonHourlyRate as string,",
+                "          SalesPersonBonus as string",
+                "     ),",
+                "     allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     ignoreNoFilesFound: false) ~> SplitSourceTable",
+                "SplitSourceTable select(mapColumn(",
+                "          Title = CustomerTitle,",
+                "          FirstName = CustomerFirstName,",
+                "          LastName = CustomerLastName",
+                "     ),",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true) ~> CustomerSelect",
+                "SplitSourceTable select(mapColumn(",
+                "          Title = SalesPersonTitle,",
+                "          FirstName = SalesPersonFirstName,",
+                "          LastName = SalesPersonLastName",
+                "     ),",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true) ~> SalesPersonSelect",
+                "CustomerSelect, SalesPersonSelect union(byName: true)~> UnionIntoPerson",
+                "UnionIntoPerson aggregate(groupBy(FirstName,",
+                "          LastName),",
+                "     Title = first(Title)) ~> AggregatePerson",
+                "AggregatePerson sink(allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     input(",
+                "          PersonID as integer,",
+                "          Title as string,",
+                "          FirstName as string,",
+                "          LastName as string",
+                "     ),",
+                "     deletable:false,",
+                "     insertable:true,",
+                "     updateable:false,",
+                "     upsertable:false,",
+                "     format: 'table',",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true,",
+                "     errorHandlingOption: 'stopOnFirstError',",
+                "     mapColumn(",
+                "          Title,",
+                "          FirstName,",
+                "          LastName",
+                "     )) ~> Person"
+            ]
+        }
+    }
+}

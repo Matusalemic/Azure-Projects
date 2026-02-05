@@ -1,0 +1,125 @@
+{
+    "name": "CustomerTable_DF",
+    "properties": {
+        "type": "MappingDataFlow",
+        "typeProperties": {
+            "sources": [
+                {
+                    "dataset": {
+                        "referenceName": "Source_Table",
+                        "type": "DatasetReference"
+                    },
+                    "name": "SourceTable"
+                },
+                {
+                    "dataset": {
+                        "referenceName": "Person",
+                        "type": "DatasetReference"
+                    },
+                    "name": "Person"
+                }
+            ],
+            "sinks": [
+                {
+                    "dataset": {
+                        "referenceName": "Customer",
+                        "type": "DatasetReference"
+                    },
+                    "name": "Customer"
+                }
+            ],
+            "transformations": [
+                {
+                    "name": "JoinID"
+                },
+                {
+                    "name": "SelectCustomerDet"
+                },
+                {
+                    "name": "AggregateCustomer"
+                },
+                {
+                    "name": "SalesTitle"
+                },
+                {
+                    "name": "PersonTitle"
+                }
+            ],
+            "scriptLines": [
+                "source(output(",
+                "          SalesOrderID as string,",
+                "          OrderDate as string,",
+                "          ShipDate as string,",
+                "          OrderStatus as string,",
+                "          OrderTotalDue as string,",
+                "          ProductName as string,",
+                "          ProductColor as string,",
+                "          ProductSize as string,",
+                "          ProductStandardCost as string,",
+                "          ProductClass as string,",
+                "          OrderQuatity as string,",
+                "          ProductUnitPrice as string,",
+                "          CustomerTitle as string,",
+                "          CustomerFirstName as string,",
+                "          CustomerLastName as string,",
+                "          CustomerAddress as string,",
+                "          CustomerAccountNumber as string,",
+                "          SalesPersonTitle as string,",
+                "          SalesPersonFirstName as string,",
+                "          SalesPersonLastName as string,",
+                "          SalesPersonHourlyRate as string,",
+                "          SalesPersonBonus as string",
+                "     ),",
+                "     allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     ignoreNoFilesFound: false) ~> SourceTable",
+                "source(output(",
+                "          PersonID as integer,",
+                "          Title as string,",
+                "          FirstName as string,",
+                "          LastName as string",
+                "     ),",
+                "     allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     isolationLevel: 'READ_UNCOMMITTED',",
+                "     format: 'table') ~> Person",
+                "SalesTitle, PersonTitle join(CustomerTitle == Title",
+                "     && CustomerFirstName == FirstName",
+                "     && CustomerLastName == LastName,",
+                "     joinType:'inner',",
+                "     matchType:'exact',",
+                "     ignoreSpaces: false,",
+                "     broadcast: 'auto')~> JoinID",
+                "JoinID select(mapColumn(",
+                "          CustomerAccountNumber,",
+                "          CustomerID = PersonID",
+                "     ),",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true) ~> SelectCustomerDet",
+                "SelectCustomerDet aggregate(groupBy(CustomerAccountNumber,",
+                "          CustomerID),",
+                "     Dummy = count(1)) ~> AggregateCustomer",
+                "SourceTable derive(CustomerTitle = iif(isNull(CustomerTitle), 'UNKNOWN', CustomerTitle)) ~> SalesTitle",
+                "Person derive(Title = iif(isNull(Title), 'UNKNOWN', Title)) ~> PersonTitle",
+                "AggregateCustomer sink(allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     input(",
+                "          CustomerAccountNumber as string,",
+                "          CustomerID as integer",
+                "     ),",
+                "     deletable:false,",
+                "     insertable:true,",
+                "     updateable:false,",
+                "     upsertable:false,",
+                "     format: 'table',",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true,",
+                "     errorHandlingOption: 'stopOnFirstError',",
+                "     mapColumn(",
+                "          CustomerAccountNumber,",
+                "          CustomerID",
+                "     )) ~> Customer"
+            ]
+        }
+    }
+}

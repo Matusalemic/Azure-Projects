@@ -1,0 +1,125 @@
+{
+    "name": "SalesPerson_DF",
+    "properties": {
+        "type": "MappingDataFlow",
+        "typeProperties": {
+            "sources": [
+                {
+                    "dataset": {
+                        "referenceName": "Source_Table",
+                        "type": "DatasetReference"
+                    },
+                    "name": "SourceTable"
+                },
+                {
+                    "dataset": {
+                        "referenceName": "Person",
+                        "type": "DatasetReference"
+                    },
+                    "name": "Person"
+                }
+            ],
+            "sinks": [
+                {
+                    "dataset": {
+                        "referenceName": "SalesPerson",
+                        "type": "DatasetReference"
+                    },
+                    "name": "SalesPerson"
+                }
+            ],
+            "transformations": [
+                {
+                    "name": "JoinID"
+                },
+                {
+                    "name": "SelectSalesPerson"
+                },
+                {
+                    "name": "aggregateDistinct"
+                },
+                {
+                    "name": "derivedColumn1"
+                }
+            ],
+            "scriptLines": [
+                "source(output(",
+                "          SalesOrderID as string,",
+                "          OrderDate as string,",
+                "          ShipDate as string,",
+                "          OrderStatus as string,",
+                "          OrderTotalDue as string,",
+                "          ProductName as string,",
+                "          ProductColor as string,",
+                "          ProductSize as string,",
+                "          ProductStandardCost as string,",
+                "          ProductClass as string,",
+                "          OrderQuatity as string,",
+                "          ProductUnitPrice as string,",
+                "          CustomerTitle as string,",
+                "          CustomerFirstName as string,",
+                "          CustomerLastName as string,",
+                "          CustomerAddress as string,",
+                "          CustomerAccountNumber as string,",
+                "          SalesPersonTitle as string,",
+                "          SalesPersonFirstName as string,",
+                "          SalesPersonLastName as string,",
+                "          SalesPersonHourlyRate as string,",
+                "          SalesPersonBonus as string",
+                "     ),",
+                "     allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     ignoreNoFilesFound: false) ~> SourceTable",
+                "source(output(",
+                "          PersonID as integer,",
+                "          Title as string,",
+                "          FirstName as string,",
+                "          LastName as string",
+                "     ),",
+                "     allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     isolationLevel: 'READ_UNCOMMITTED',",
+                "     format: 'table') ~> Person",
+                "SourceTable, Person join(SalesPersonFirstName == FirstName",
+                "     && SalesPersonLastName == LastName,",
+                "     joinType:'inner',",
+                "     matchType:'exact',",
+                "     ignoreSpaces: false,",
+                "     broadcast: 'auto')~> JoinID",
+                "derivedColumn1 select(mapColumn(",
+                "          SalesPersonID = PersonID,",
+                "          SalesPersonHourlyRate,",
+                "          SalesPersonBonus",
+                "     ),",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true) ~> SelectSalesPerson",
+                "SelectSalesPerson aggregate(groupBy(SalesPersonID,",
+                "          SalesPersonHourlyRate,",
+                "          SalesPersonBonus),",
+                "     dummy = max(SalesPersonID)) ~> aggregateDistinct",
+                "JoinID derive(SalesPersonHourlyRate = toDecimal(SalesPersonHourlyRate, 18, 4),",
+                "          SalesPersonBonus = toDecimal(SalesPersonBonus, 18, 4)) ~> derivedColumn1",
+                "aggregateDistinct sink(allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     input(",
+                "          SalesPersonID as integer,",
+                "          SalesPersonHourlyRate as decimal(10,4),",
+                "          SalesPersonBonus as decimal(10,4)",
+                "     ),",
+                "     deletable:false,",
+                "     insertable:true,",
+                "     updateable:false,",
+                "     upsertable:false,",
+                "     format: 'table',",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true,",
+                "     errorHandlingOption: 'stopOnFirstError',",
+                "     mapColumn(",
+                "          SalesPersonID,",
+                "          SalesPersonHourlyRate,",
+                "          SalesPersonBonus",
+                "     )) ~> SalesPerson"
+            ]
+        }
+    }
+}
