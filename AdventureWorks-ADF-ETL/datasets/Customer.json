@@ -1,0 +1,27 @@
+{
+    "name": "Customer",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "AzureSqlDatabase1",
+            "type": "LinkedServiceReference"
+        },
+        "annotations": [],
+        "type": "AzureSqlTable",
+        "schema": [
+            {
+                "name": "CustomerAccountNumber",
+                "type": "varchar"
+            },
+            {
+                "name": "CustomerID",
+                "type": "int",
+                "precision": 10
+            }
+        ],
+        "typeProperties": {
+            "schema": "dbo",
+            "table": "Customer"
+        }
+    },
+    "type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,113 @@
+{
+    "name": "Source_Table",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "AzureBlobStorage1",
+            "type": "LinkedServiceReference"
+        },
+        "annotations": [],
+        "type": "DelimitedText",
+        "typeProperties": {
+            "location": {
+                "type": "AzureBlobStorageLocation",
+                "fileName": "AdventureWorks.txt",
+                "container": "advworkscontainer"
+            },
+            "columnDelimiter": ",",
+            "escapeChar": "\\",
+            "firstRowAsHeader": true,
+            "quoteChar": "\""
+        },
+        "schema": [
+            {
+                "name": "SalesOrderID",
+                "type": "String"
+            },
+            {
+                "name": "OrderDate",
+                "type": "String"
+            },
+            {
+                "name": "ShipDate",
+                "type": "String"
+            },
+            {
+                "name": "OrderStatus",
+                "type": "String"
+            },
+            {
+                "name": "OrderTotalDue",
+                "type": "String"
+            },
+            {
+                "name": "ProductName",
+                "type": "String"
+            },
+            {
+                "name": "ProductColor",
+                "type": "String"
+            },
+            {
+                "name": "ProductSize",
+                "type": "String"
+            },
+            {
+                "name": "ProductStandardCost",
+                "type": "String"
+            },
+            {
+                "name": "ProductClass",
+                "type": "String"
+            },
+            {
+                "name": "OrderQuatity",
+                "type": "String"
+            },
+            {
+                "name": "ProductUnitPrice",
+                "type": "String"
+            },
+            {
+                "name": "CustomerTitle",
+                "type": "String"
+            },
+            {
+                "name": "CustomerFirstName",
+                "type": "String"
+            },
+            {
+                "name": "CustomerLastName",
+                "type": "String"
+            },
+            {
+                "name": "CustomerAddress",
+                "type": "String"
+            },
+            {
+                "name": "CustomerAccountNumber",
+                "type": "String"
+            },
+            {
+                "name": "SalesPersonTitle",
+                "type": "String"
+            },
+            {
+                "name": "SalesPersonFirstName",
+                "type": "String"
+            },
+            {
+                "name": "SalesPersonLastName",
+                "type": "String"
+            },
+            {
+                "name": "SalesPersonHourlyRate",
+                "type": "String"
+            },
+            {
+                "name": "SalesPersonBonus",
+                "type": "String"
+            }
+        ]
+    },
+    "type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,35 @@
+{
+    "name": "SalesPerson",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "AzureSqlDatabase1",
+            "type": "LinkedServiceReference"
+        },
+        "annotations": [],
+        "type": "AzureSqlTable",
+        "schema": [
+            {
+                "name": "SalesPersonID",
+                "type": "int",
+                "precision": 10
+            },
+            {
+                "name": "SalesPersonHourlyRate",
+                "type": "decimal",
+                "precision": 10,
+                "scale": 4
+            },
+            {
+                "name": "SalesPersonBonus",
+                "type": "decimal",
+                "precision": 10,
+                "scale": 4
+            }
+        ],
+        "typeProperties": {
+            "schema": "dbo",
+            "table": "SalesPerson"
+        }
+    },
+    "type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,40 @@
+{
+    "name": "Product",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "AzureSqlDatabase1",
+            "type": "LinkedServiceReference"
+        },
+        "annotations": [],
+        "type": "AzureSqlTable",
+        "schema": [
+            {
+                "name": "ProductName",
+                "type": "varchar"
+            },
+            {
+                "name": "ProductColor",
+                "type": "varchar"
+            },
+            {
+                "name": "ProductSize",
+                "type": "varchar"
+            },
+            {
+                "name": "ProductClass",
+                "type": "varchar"
+            },
+            {
+                "name": "ProductStandardCost",
+                "type": "decimal",
+                "precision": 10,
+                "scale": 4
+            }
+        ],
+        "typeProperties": {
+            "schema": "dbo",
+            "table": "Product"
+        }
+    },
+    "type": "Microsoft.DataFactory/factories/datasets"
+}

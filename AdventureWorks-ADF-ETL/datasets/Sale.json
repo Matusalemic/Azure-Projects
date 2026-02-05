@@ -1,0 +1,53 @@
+{
+    "name": "Sale",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "AzureSqlDatabase1",
+            "type": "LinkedServiceReference"
+        },
+        "annotations": [],
+        "type": "AzureSqlTable",
+        "schema": [
+            {
+                "name": "SalesOrderID",
+                "type": "varchar"
+            },
+            {
+                "name": "OrderDate",
+                "type": "datetime2",
+                "scale": 7
+            },
+            {
+                "name": "ShipDate",
+                "type": "datetime2",
+                "scale": 7
+            },
+            {
+                "name": "OrderStatus",
+                "type": "tinyint",
+                "precision": 3
+            },
+            {
+                "name": "OrderTotalDue",
+                "type": "decimal",
+                "precision": 10,
+                "scale": 4
+            },
+            {
+                "name": "CustomerID",
+                "type": "int",
+                "precision": 10
+            },
+            {
+                "name": "SalesPersonID",
+                "type": "int",
+                "precision": 10
+            }
+        ],
+        "typeProperties": {
+            "schema": "dbo",
+            "table": "Sale"
+        }
+    },
+    "type": "Microsoft.DataFactory/factories/datasets"
+}
